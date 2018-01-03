@@ -56,6 +56,11 @@ options:
             - rabbitMQ management api port
         required: false
         default: 15672
+    login_protocol:
+        description:
+            - rabbitMQ protocol for the api (http|https)
+        required: false
+        default: http
     vhost:
         description:
             - rabbitMQ virtual host
@@ -123,6 +128,7 @@ def main():
             login_password=dict(default='guest', type='str', no_log=True),
             login_host=dict(default='localhost', type='str'),
             login_port=dict(default='15672', type='str'),
+            login_protocol=dict(default='http', type='str'),
             vhost=dict(default='/', type='str'),
             destination=dict(required=True, aliases=["dst", "dest"], type='str'),
             destination_type=dict(required=True, aliases=["type", "dest_type"], choices=["queue", "exchange"], type='str'),
@@ -146,7 +152,7 @@ def main():
     else:
         props = urllib_parse.quote(module.params['routing_key'], '')
 
-    base_url = "http://%s:%s/api/bindings" % (module.params['login_host'], module.params['login_port'])
+    base_url = "%s://%s:%s/api/bindings" % (module.params['login_protocol'], module.params['login_host'], module.params['login_port'])
 
     url = "%s/%s/e/%s/%s/%s/%s" % (base_url,
                                    urllib_parse.quote(module.params['vhost'], ''),
